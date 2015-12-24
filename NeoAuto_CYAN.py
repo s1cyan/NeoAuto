@@ -341,8 +341,7 @@ def stats():  # displays basic status of neopets things
 
 print('Welcome to NeoAuto.')
 username_input = input('Username:')
-password_input = getpass.getpass()
-
+password_input = input('Password:')
 
 driver = webdriver.Firefox()
 driver.get("http://www.neopets.com/")
