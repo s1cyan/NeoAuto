@@ -5,16 +5,18 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
+import urllib
 from urllib import request
 from bs4 import BeautifulSoup
 import re
 import math
+import mechanize
+import cookiejar
 import getpass
 
 __author__ = 'cyan'
 
 # Neopets Dailies Automation. User can choose to execute individual dailies or run everything at once.
-# This program is meant to run for my account
 food = []
 pets = []
 
@@ -246,49 +248,6 @@ def visitBank():  # visits bank, lets user deposit/withdraw
             doneBanking = True
 
 
-def item_scraper(url):  # takes database page and parses out all the food items and adds it to the food list
-    page = request.urlopen(url).read()
-    soup = BeautifulSoup(page, "html.parser")
-    item_soup = soup.find_all("input")
-
-    for item in item_soup:
-        food.append(item.get_text())  #.lstrip())
-
-
-def food_list():  # makes a huge list of all the food items in neopets
-    food_database = ['http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=70&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=81&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=81&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=3&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=49&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=27&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=22&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=25&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=101&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=1&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=20&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=42&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=43&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=46&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=47&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=40&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=109&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=104&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=44&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=80&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=8&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=68&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=17&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=117&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=102&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=65&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=11&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=7&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',
-                     'http://items.jellyneo.net/printable_list.php?go=show_items&name=&name_type=partial&desc=&cat=45&specialcat=0&status=0&rarity=0&sortby=name&numitems=20',]
-    for each_food_page in food_database:
-        item_scraper(each_food_page)
-
-
 def inv_navigator(inventory_number):  # returns correct xpath for cell in inventory
     if math.floor(inventory_number % 6) == 0:
         row = math.floor(inventory_number/6)
@@ -339,6 +298,22 @@ def stats():  # displays basic status of neopets things
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
 
+# TODO GET PETS!!
+def getPets():
+    url = 'http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input)
+    user_page = driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
+    # pet_page = user_page.read()
+    # pet_page = request.urlopen(url).read()
+    # pet_soup = BeautifulSoup(pet_page, 'html.parser').prettify()
+    # print(pet_soup)
+    # user_pets = pet_soup.find_all('a', href = True)#, href=re.compile('/petlookup.phtml?pet='))
+    # print(user_pets)
+    # for a in user_pets:
+    #     if '/petlookup.phtml?pet=' in a['href']:
+    #         print(a)
+
+
+
 print('Welcome to NeoAuto.')
 username_input = input('Username:')
 password_input = input('Password:')
@@ -359,10 +334,12 @@ password.send_keys(Keys.RETURN)
 
 driver.find_element_by_css_selector('#npanchor')
 
+getPets()
+
 donePlaying = False
 prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'fruit', 'meteor', 'slorg', 'symbol',
            'toychest', 'fishing', 'plushie', 'tombola', 'temple', 'do all', 'bank', 'feed kiko', 'feed aisha',
-           'status', 'done']
+           'status', 'exit']
 while not donePlaying:
     freebie = input('---->')
     if freebie == 'jelly':
@@ -405,7 +382,7 @@ while not donePlaying:
         feedPet(pets[0])
     elif freebie == 'status':
         stats()
-    elif freebie == 'done':
+    elif freebie == 'exit':
         donePlaying = True
 
     elif freebie == 'help':
@@ -413,6 +390,6 @@ while not donePlaying:
         for prompt in prompts:
             print(prompt, '\n')
     else:
-        print('Invalid input. Type \'help\' to see all prompts')
+        print('Invalid prompt. Type \'help\' to see all prompts')
 
 driver.close()
