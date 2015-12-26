@@ -10,7 +10,6 @@ from urllib import request
 from bs4 import BeautifulSoup
 import re
 import math
-import mechanize
 import cookiejar
 import getpass
 
@@ -298,10 +297,12 @@ def stats():  # displays basic status of neopets things
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
 
-# TODO GET PETS!!
 def getPets():
-    url = 'http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input)
-    user_page = driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
+    driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
+    user_page_soup = str(BeautifulSoup(driver.page_source, "html.parser"))
+    pet_regex = r"pet=(.+)\"\>"
+    neopets = re.findall(pet_regex, user_page_soup)
+    print(neopets)
     # pet_page = user_page.read()
     # pet_page = request.urlopen(url).read()
     # pet_soup = BeautifulSoup(pet_page, 'html.parser').prettify()
@@ -311,7 +312,6 @@ def getPets():
     # for a in user_pets:
     #     if '/petlookup.phtml?pet=' in a['href']:
     #         print(a)
-
 
 
 print('Welcome to NeoAuto.')
@@ -341,7 +341,7 @@ prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'frui
            'toychest', 'fishing', 'plushie', 'tombola', 'temple', 'do all', 'bank', 'feed kiko', 'feed aisha',
            'status', 'exit']
 while not donePlaying:
-    freebie = input('---->')
+    freebie = input('NeoAuto ---->')
     if freebie == 'jelly':
         jelly()
     elif freebie == 'omelette':
