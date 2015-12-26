@@ -16,6 +16,23 @@ __author__ = 'cyan'
 # Neopets Dailies Automation. User can choose to execute individual dailies or run everything at once.
 
 
+class Player:
+    def __init__(self,user):
+        self.username = user
+        self.neopets = []
+        self.money = 0
+        self.inventory = 0
+
+    def getPets(self):
+        driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
+        user_page_soup = str(BeautifulSoup(driver.page_source, "html.parser"))
+        pet_regex = r"pet=(.+)\"\>"
+        neopets_list = re.findall(pet_regex, user_page_soup)
+        print(neopets_list)
+        print(len(neopets_list))
+        self.neopets = neopets_list
+
+
 def jelly():  # gets free jelly. Sometimes jelly runs out, if jelly isn't there, program doesn't do anything
     driver.get("http://www.neopets.com/jelly/jelly.phtml")
     if driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/center[2]/form/input[2]'):
@@ -184,7 +201,7 @@ def lunartemple():  # goes to lunar temple and picks correct answer to puzzle
         phaseSelect.click()
 
 
-def allTheFreebies(): # gets all the freebies
+def allTheFreebies(): # gets the most common freebies
     jelly()
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
     omelette()
@@ -293,13 +310,7 @@ def stats():  # displays basic status of neopets things
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
 
-def getPets():
-    driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
-    user_page_soup = str(BeautifulSoup(driver.page_source, "html.parser"))
-    pet_regex = r"pet=(.+)\"\>"
-    neopets = re.findall(pet_regex, user_page_soup)
-    print(neopets)
-    print(len(neopets))
+
 
 
 
