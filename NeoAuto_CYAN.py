@@ -10,14 +10,10 @@ from urllib import request
 from bs4 import BeautifulSoup
 import re
 import math
-import cookiejar
-import getpass
 
 __author__ = 'cyan'
 
 # Neopets Dailies Automation. User can choose to execute individual dailies or run everything at once.
-food = []
-pets = []
 
 
 def jelly():  # gets free jelly. Sometimes jelly runs out, if jelly isn't there, program doesn't do anything
@@ -303,15 +299,8 @@ def getPets():
     pet_regex = r"pet=(.+)\"\>"
     neopets = re.findall(pet_regex, user_page_soup)
     print(neopets)
-    # pet_page = user_page.read()
-    # pet_page = request.urlopen(url).read()
-    # pet_soup = BeautifulSoup(pet_page, 'html.parser').prettify()
-    # print(pet_soup)
-    # user_pets = pet_soup.find_all('a', href = True)#, href=re.compile('/petlookup.phtml?pet='))
-    # print(user_pets)
-    # for a in user_pets:
-    #     if '/petlookup.phtml?pet=' in a['href']:
-    #         print(a)
+    print(len(neopets))
+
 
 
 print('Welcome to NeoAuto.')
