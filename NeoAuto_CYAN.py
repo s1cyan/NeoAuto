@@ -21,7 +21,7 @@ class Player:
         self.username = user
         self.neopets = []
         self.money = 0
-        self.inventory = 0
+        self.inventory_size = 0
 
     def getPets(self):
         driver.get('http://www.neopets.com/userlookup.phtml?user={user}'.format(user=username_input))
@@ -29,7 +29,6 @@ class Player:
         pet_regex = r"pet=(.+)\"\>"
         neopets_list = re.findall(pet_regex, user_page_soup)
         print(neopets_list)
-        print(len(neopets_list))
         self.neopets = neopets_list
 
 
@@ -302,21 +301,38 @@ def feedPet(pet):  # feeds indicated pet
 
 def stats():  # displays basic status of neopets things
     driver.get('http://www.neopets.com/inventory.phtml')
-    np_amount = driver.find_element_by_xpath('//*[@id="npanchor"]')
-    inv_amount = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/b[1]')
+    inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
+
+    # NP
+    np_regex = 'NP: \<a id=\'npanchor\' href="/inventory\.phtml"\>(.+)\<'
+    find_money = re.search(np_regex, inv_page)
+    print('money?', find_money)
+    # user.money = find_money.group(1)
+
+    # INV Size
+    inv_regex = 'The maximum you should hold is \<b\>(.+)\<'
+    find_inventory_size = re.search(inv_regex,inv_page)
+    print('inv size', find_inventory_size)
+    # user.inventory_size = int(find_inventory_size.group(1))
+    # adds a check for max inv size/nearing max inv size
+    if user.inventory_size >= 50:
+        print('You have too much stuff in your inventory. You should move some things.')
+    elif user.inventory_size >= 46:
+        print('You are reaching maximum capacity of your inventory')
+
+    #  np_amount = driver.find_element_by_xpath('//*[@id="npanchor"]')
+    #  inv_amount = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/b[1]')
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
-    print('Current NP:', np_amount.text)
-    print('Inventory: ', inv_amount.text)
+    print('Current NP:', user.money)
+    print('Inventory: ', user.inventory_size)
     print('Active Pet Hunger: ', active_pet_hunger.text)
-
-
-
-
 
 
 print('Welcome to NeoAuto.')
 username_input = input('Username:')
 password_input = input('Password:')
+
+user = Player(username_input)
 
 driver = webdriver.Firefox()
 driver.get("http://www.neopets.com/")
@@ -334,7 +350,7 @@ password.send_keys(Keys.RETURN)
 
 driver.find_element_by_css_selector('#npanchor')
 
-getPets()
+user.getPets()
 
 donePlaying = False
 prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'fruit', 'meteor', 'slorg', 'symbol',
@@ -376,10 +392,11 @@ while not donePlaying:
         allTheFreebies()
     elif freebie == 'bank':
         visitBank()
-    elif freebie == 'feed kiko':
-        feedPet(pets[1])
-    elif freebie == 'feed aisha':
-        feedPet(pets[0])
+    # TODO FEED Pets
+    # elif freebie == 'feed kiko':
+    #     feedPet(user.neopets[1])
+    # elif freebie == 'feed aisha':
+    #     feedPet(user.neopets[0])
     elif freebie == 'status':
         stats()
     elif freebie == 'exit':
