@@ -68,7 +68,10 @@ def apples(): # apple bobbing
 def bank_interest(): # collect bank interest
     driver.get('http://www.neopets.com/bank.phtml')
     interest = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[2]/tbody/tr/td/div/table/tbody/tr[2]/td/div/form/input[2]')
-    interest.click()
+    if interest:
+        interest.click()
+    else:
+        WebDriverWait(driver,3)
 
 
 def shrine(): # visit coltzans shrine
@@ -80,7 +83,7 @@ def shrine(): # visit coltzans shrine
 def fruit_machine(): # spins fruit machine
     driver.get('http://www.neopets.com/desert/fruit/index.phtml')
     spin = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/form/input[3]').click()
-
+    WebDriverWait(driver,5)
 
 def meteor(): # pokes meteor
     driver.get('http://www.neopets.com/moon/meteor.phtml?getclose=1')
@@ -226,7 +229,8 @@ def allTheFreebies(): # gets the most common freebies
     fishing()
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
     plushie()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[2]/center/form/input')))
+    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    #WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[2]/center/form/input')))
     tombola()
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[2]/td')))
     lunartemple()
@@ -269,34 +273,45 @@ def inv_navigator(inventory_number):  # returns correct xpath for cell in invent
     return '//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/table/tbody/tr[{line}]/td[{cell_num}]'.format(line=row, cell_num=cell)
 
 
-def feedPet(pet):  # feeds indicated pet
-    feed_input = input('How many times do you want to feed? \n ---->')
-    feed_int = int(feed_input)
-    driver.get('http://www.neopets.com/inventory.phtml')
-    for x in range(0, feed_int):
-        i = 1
-        while i < 50:  # checks if first item in inventory is edible, keeps moving to next cell until food is found
-            try:
-                cell = driver.find_element_by_xpath(inv_navigator(i))
-                cell.click()
-                WebDriverWait(driver,3)
-                driver.switch_to.window(driver.window_handles[1])
-                select = Select(driver.find_element_by_name("action"))
+def feedPet():  # feeds indicated pet
+    done_feeding = False
+    while not done_feeding:
+        print('Which pet do you want to feed?')
+        for pet in user.neopets:
+            print('[', user.neopets.index(pet), ']', ' ', pet)
+        pick_pet = int(input('Select pet# ---->'))
+        feed_input = input('How many times do you want to feed? \n ---->')
+        feed_int = int(feed_input)
+        driver.get('http://www.neopets.com/inventory.phtml')
+        for x in range(0, feed_int):
+            i = 1
+            while i < 55:  # checks if first item in inventory is edible, keeps moving to next cell until food is found
                 try:
-                    select.select_by_visible_text("Feed to {pet_name}.".format(pet_name=pet))
-                    driver.find_element_by_id("submit").click()
+                    cell = driver.find_element_by_xpath(inv_navigator(i))
+                    cell.click()
+                    WebDriverWait(driver,3)
+                    driver.switch_to.window(driver.window_handles[1])
+                    select = Select(driver.find_element_by_name("action"))
                     WebDriverWait(driver,2)
-                    driver.find_element_by_tag_name('input').click()
-                    driver.switch_to.window(driver.window_handles[0])
-                    i = 100
+                    try:
+                        select.select_by_visible_text("Feed to {pet_name}.".format(pet_name=user.neopets[pick_pet]))
+                        driver.find_element_by_id("submit").click()
+                        WebDriverWait(driver,2)
+                        driver.find_element_by_tag_name('input').click()
+                        driver.switch_to.window(driver.window_handles[0])
+                        i = 100
+                    except NoSuchElementException:
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                        # print('Item not food')
+                        i += 1
                 except NoSuchElementException:
-                    driver.close()
-                    driver.switch_to.window(driver.window_handles[0])
-                    # print('Item not food')
-                    i += 1
-            except NoSuchElementException:
-                print('There is no food in your inventory. Stock up!')
-                i = 100
+                    print('There is no food in your inventory. Stock up!')
+                    i = 100
+                    done_feeding = True
+        finish_prompt = input('Type \'n\' to leave feeding. Anything else to continue feeding ---->' )
+        if finish_prompt == 'n' or 'N':
+            done_feeding = True
 
 
 def stats():  # displays basic status of neopets things
@@ -322,6 +337,7 @@ def stats():  # displays basic status of neopets things
 
     #  np_amount = driver.find_element_by_xpath('//*[@id="npanchor"]')
     #  inv_amount = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/b[1]')
+
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
     print('Current NP:', user.money)
     print('Inventory: ', user.inventory_size)
@@ -354,7 +370,7 @@ user.getPets()
 
 donePlaying = False
 prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'fruit', 'meteor', 'slorg', 'symbol',
-           'toychest', 'fishing', 'plushie', 'tombola', 'temple', 'do all', 'bank', 'feed kiko', 'feed aisha',
+           'toychest', 'fishing', 'plushie', 'tombola', 'temple', 'do all', 'bank', 'feed pets',
            'status', 'exit']
 while not donePlaying:
     freebie = input('NeoAuto ---->')
@@ -393,10 +409,8 @@ while not donePlaying:
     elif freebie == 'bank':
         visitBank()
     # TODO FEED Pets
-    # elif freebie == 'feed kiko':
-    #     feedPet(user.neopets[1])
-    # elif freebie == 'feed aisha':
-    #     feedPet(user.neopets[0])
+    elif freebie == 'feed':
+        feedPet()
     elif freebie == 'status':
         stats()
     elif freebie == 'exit':
