@@ -299,6 +299,7 @@ def feedPet():  # feeds indicated pet
                     except NoSuchElementException:
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
+                        WebDriverWait(driver,2)
                         # print('Item not food')
                         i += 1
                 except NoSuchElementException:
@@ -306,7 +307,7 @@ def feedPet():  # feeds indicated pet
                     i = 100
                     done_feeding = True
         finish_prompt = input('Type \'n\' to leave feeding. Anything else to continue feeding ---->' )
-        if finish_prompt == 'n' or 'N':
+        if finish_prompt == 'n':
             done_feeding = True
 
 
@@ -315,19 +316,21 @@ def stats():  # displays basic status of neopets things
     inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
 
     # NP
-    np_regex = 'NP: \<a id=\'npanchor\' href="/inventory\.phtml"\>(.+)\<'
+    np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
+    # np_regex = r'id=\'npanchor\' href="/inventory\.phtml"\>([0-9]+)'
     find_money = re.search(np_regex, inv_page)
     print('money?', find_money)
-    # user.money = find_money.group(1)
+    #user.money = find_money.group(1)
 
     # INV Size
-    inv_regex = 'The maximum you should hold is \<b\>(.+)\<'
+    inv_regex = r'Total Items: \<b\>([0-9]+)\<'
     find_inventory_size = re.search(inv_regex,inv_page)
-    print('inv size', find_inventory_size)
+    user.inventory_size = int(find_inventory_size.group(1))
+    print('inv size', user.inventory_size)
     # user.inventory_size = int(find_inventory_size.group(1))
     # adds a check for max inv size/nearing max inv size
     if user.inventory_size >= 50:
-        print('You have too much stuff in your inventory. You should move some things.')
+        print('You have too many items in your inventory. You should move some things.')
     elif user.inventory_size >= 46:
         print('You are reaching maximum capacity of your inventory')
 
