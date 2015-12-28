@@ -5,8 +5,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import Select
-import urllib
-from urllib import request
 from bs4 import BeautifulSoup
 import re
 import math
@@ -28,7 +26,6 @@ class Player:
         user_page_soup = str(BeautifulSoup(driver.page_source, "html.parser"))
         pet_regex = r"pet=(.+)\"\>"
         neopets_list = re.findall(pet_regex, user_page_soup)
-        print(neopets_list)
         self.neopets = neopets_list
 
 
@@ -230,7 +227,6 @@ def allTheFreebies(): # gets the most common freebies
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
     plushie()
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
-    #WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[2]/center/form/input')))
     tombola()
     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[2]/td')))
     lunartemple()
@@ -335,9 +331,6 @@ def stats():  # displays basic status of neopets things
     elif user.inventory_size >= 46:
         print('You are reaching maximum capacity of your inventory')
 
-    #  np_amount = driver.find_element_by_xpath('//*[@id="npanchor"]')
-    #  inv_amount = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/b[1]')
-
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
     print('Current NP:', user.money)
     print('Inventory: ', user.inventory_size)
@@ -408,7 +401,6 @@ while not donePlaying:
         allTheFreebies()
     elif freebie == 'bank':
         visitBank()
-    # TODO FEED Pets
     elif freebie == 'feed':
         feedPet()
     elif freebie == 'status':
