@@ -31,20 +31,24 @@ class Player:
 
 def jelly():  # gets free jelly. Sometimes jelly runs out, if jelly isn't there, program doesn't do anything
     driver.get("http://www.neopets.com/jelly/jelly.phtml")
-    if driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/center[2]/form/input[2]'):
+    try:
+        # driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/center[2]/form/input[2]')
         getjelly = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/center[2]/form/input[2]')
         getjelly.click()
-    else:
+    except NoSuchElementException:
         WebDriverWait(driver,3)
+        return
 
 
 def omelette():  # gets free omelette. See jelly (similar running out situation)
     driver.get('http://www.neopets.com/prehistoric/omelette.phtml')
-    if driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/center[2]/form/input[2]'):
+    try:
+        # driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/center[2]/form/input[2]')
         getomelette = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/center[2]/form/input[2]')
         getomelette.click()
-    else:
-        WebDriverWait(driver, 3)
+    except NoSuchElementException:
+        WebDriverWait(driver,2)
+        return
 
 
 def springs():  # healing springs. Gets random fairy blessing
@@ -80,7 +84,7 @@ def shrine(): # visit coltzans shrine
 def fruit_machine(): # spins fruit machine
     driver.get('http://www.neopets.com/desert/fruit/index.phtml')
     spin = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/form/input[3]').click()
-    WebDriverWait(driver,5)
+    WebDriverWait(driver,10)
 
 def meteor(): # pokes meteor
     driver.get('http://www.neopets.com/moon/meteor.phtml?getclose=1')
@@ -315,14 +319,15 @@ def stats():  # displays basic status of neopets things
     driver.get('http://www.neopets.com/inventory.phtml')
     inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
 
-    # NP
-    np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
+    # TODO NP Finder
+    np_regex = r'href="/inventory\.phtml"\>([0-9].+)\</a'
+    # np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
     # np_regex = r'id=\'npanchor\' href="/inventory\.phtml"\>([0-9]+)'
     find_money = re.search(np_regex, inv_page)
     print('money?', find_money)
     #user.money = find_money.group(1)
 
-    # INV Size
+    # INV Size WORKS
     inv_regex = r'Total Items: \<b\>([0-9]+)\<'
     find_inventory_size = re.search(inv_regex,inv_page)
     user.inventory_size = int(find_inventory_size.group(1))
@@ -333,7 +338,7 @@ def stats():  # displays basic status of neopets things
         print('You have too many items in your inventory. You should move some things.')
     elif user.inventory_size >= 46:
         print('You are reaching maximum capacity of your inventory')
-
+    # Find Active pet hunger WORKS
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
     print('Current NP:', user.money)
     print('Inventory: ', user.inventory_size)
