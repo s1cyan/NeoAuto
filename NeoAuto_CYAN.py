@@ -18,7 +18,7 @@ class Player:
     def __init__(self,user):
         self.username = user
         self.neopets = []
-        self.money = 0
+        self.np = 0
         self.inventory_size = 0
 
     def getPets(self):
@@ -273,7 +273,7 @@ def inv_navigator(inventory_number):  # returns correct xpath for cell in invent
     return '//*[@id="content"]/table/tbody/tr/td[2]/div[3]/table/tbody/tr[2]/td/table/tbody/tr[{line}]/td[{cell_num}]'.format(line=row, cell_num=cell)
 
 
-def feedPet():  # feeds indicated pet # if pet doesnt like food (YUCK- skip over item)
+def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
     done_feeding = False
     yuck_regex = r'Yuck'
     while not done_feeding:
@@ -287,7 +287,7 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food (YUCK- skip over
         for x in range(0, feed_int):
             i = 1
             while i < 55:  # checks if first item in inventory is edible, keeps moving to next cell until food is found
-                try:
+                try:  # navigates drop down menu
                     cell = driver.find_element_by_xpath(inv_navigator(i))
                     cell.click()
                     WebDriverWait(driver, 3)
@@ -295,7 +295,7 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food (YUCK- skip over
                     WebDriverWait(driver, 3)
                     select = Select(driver.find_element_by_name("action"))
                     WebDriverWait(driver, 3)
-                    try:
+                    try:  # looks for feed pet option- if not moves on to next cell
                         select.select_by_visible_text("Feed to {pet_name}.".format(pet_name=user.neopets[pick_pet]))
                         driver.find_element_by_id("submit").click()
                         WebDriverWait(driver,2)
@@ -306,7 +306,7 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food (YUCK- skip over
                             i = 100
                         driver.find_element_by_tag_name('input').click()
                         driver.switch_to.window(driver.window_handles[0])
-                    except NoSuchElementException:  # item is not food- moves on
+                    except NoSuchElementException:
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
                         WebDriverWait(driver,2)
@@ -320,16 +320,20 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food (YUCK- skip over
             done_feeding = True
 
 
-def stats():  # displays basic status of neopets things
+def stats():  # displays basic status of NP, Inventory and Active pet hunger
     driver.get('http://www.neopets.com/inventory.phtml')
     inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
 
     # TODO NP Finder
-    np_regex = r'href="/inventory\.phtml"'#\>([1-9].*)\</a'
-    # np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
-    # np_regex = r'id=\'npanchor\' href="/inventory\.phtml"\>([0-9]+)'
-    find_money = re.search(np_regex, inv_page)
-    print('money?', find_money)
+    np = driver.find_element_by_xpath('//*[@id="npanchor"]').text
+    user.np = int(np.replace(',',''))
+
+    # np_regex = r'(href="/inventory\.phtml"\>)(.*)(</)'#\>([1-9].*)\</a'
+    # # np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
+    # # np_regex = r'id=\'npanchor\' href="/inventory\.phtml"\>([0-9]+)'
+    # find_money = re.findall(np_regex, inv_page)
+    # print('found money?', find_money[0].group(1))
+    # print('money??????', find_money.group(1))
     #user.money = find_money.group(1)
 
     # INV Size WORKS
@@ -345,7 +349,7 @@ def stats():  # displays basic status of neopets things
         print('You are reaching maximum capacity of your inventory')
     # Find Active pet hunger WORKS
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
-    print('Current NP:', user.money)
+    print('Current NP:', user.np )
     print('Inventory: ', user.inventory_size)
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
