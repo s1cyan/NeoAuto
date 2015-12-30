@@ -239,18 +239,25 @@ def allTheFreebies(): # gets the most common freebies
 def visitBank():  # visits bank, lets user deposit/withdraw
     print('Please Wait')
     driver.get('http://www.neopets.com/bank.phtml')
-    currentNP = driver.find_element_by_css_selector('#npanchor')
-    print('Current NP: ', currentNP.text)
+    np_check()
+    # currentNP = driver.find_element_by_css_selector('#npanchor')
+    # print('Current NP: ', currentNP.text)
     doneBanking = False
     while not doneBanking:
         bankDW = input('Deposit or Withdraw?:')
         if bankDW == 'Deposit' or 'deposit':
-            addNP = input('How much would you like to deposit? -->')
-            depositNP = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[1]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/form/input[2]')
-            depositNP.send_keys(addNP)
-            submit = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[1]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/form/input[3]')
-            submit.click()
-            driver.switch_to.alert.accept()
+            good_deposit = False
+            while not good_deposit:
+                addNP = input('How much would you like to deposit? -->')
+                if int(addNP) > user.np:
+                    print('You do not have that much money.')
+                else:
+                    depositNP = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[1]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/form/input[2]')
+                    depositNP.send_keys(addNP)
+                    submit = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[1]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/form/input[3]')
+                    submit.click()
+                    driver.switch_to.alert.accept()
+                    good_deposit = True
             doneBanking = True
 
         elif bankDW == 'Withdraw' or 'withdraw':
@@ -320,36 +327,31 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
             done_feeding = True
 
 
+def np_check():
+    # Finds users NP - stores to Player
+    np = driver.find_element_by_xpath('//*[@id="npanchor"]').text
+    user.np = int(np.replace(',', ''))
+    print('Current NP:', user.np )
+
+
 def stats():  # displays basic status of NP, Inventory and Active pet hunger
     driver.get('http://www.neopets.com/inventory.phtml')
+    # Finds inventory size
     inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
-
-    # TODO NP Finder
-    np = driver.find_element_by_xpath('//*[@id="npanchor"]').text
-    user.np = int(np.replace(',',''))
-
-    # np_regex = r'(href="/inventory\.phtml"\>)(.*)(</)'#\>([1-9].*)\</a'
-    # # np_regex = r'inventory\.phtml"\>([0-9]+,?[0-9]*)\<'
-    # # np_regex = r'id=\'npanchor\' href="/inventory\.phtml"\>([0-9]+)'
-    # find_money = re.findall(np_regex, inv_page)
-    # print('found money?', find_money[0].group(1))
-    # print('money??????', find_money.group(1))
-    #user.money = find_money.group(1)
-
-    # INV Size WORKS
     inv_regex = r'Total Items: \<b\>([0-9]+)\<'
     find_inventory_size = re.search(inv_regex,inv_page)
     user.inventory_size = int(find_inventory_size.group(1))
-    print('inv size', user.inventory_size)
-    # user.inventory_size = int(find_inventory_size.group(1))
     # adds a check for max inv size/nearing max inv size
     if user.inventory_size >= 50:
         print('You have too many items in your inventory. You should move some things.')
     elif user.inventory_size >= 46:
         print('You are reaching maximum capacity of your inventory')
-    # Find Active pet hunger WORKS
+
+    # Find Active pet hunger
     active_pet_hunger = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[4]/td/table/tbody/tr[4]/td[2]/b')
-    print('Current NP:', user.np )
+
+    np_check()
+
     print('Inventory: ', user.inventory_size)
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
