@@ -239,13 +239,12 @@ def allTheFreebies(): # gets the most common freebies
 def visitBank():  # visits bank, lets user deposit/withdraw
     print('Please Wait')
     driver.get('http://www.neopets.com/bank.phtml')
-    np_check()
     # currentNP = driver.find_element_by_css_selector('#npanchor')
-    # print('Current NP: ', currentNP.text)
     doneBanking = False
     while not doneBanking:
+        np_check()
         bankDW = input('Deposit or Withdraw?:')
-        if bankDW == 'Deposit' or 'deposit':
+        if bankDW == 'deposit':
             good_deposit = False
             while not good_deposit:
                 addNP = input('How much would you like to deposit? -->')
@@ -260,13 +259,21 @@ def visitBank():  # visits bank, lets user deposit/withdraw
                     good_deposit = True
             doneBanking = True
 
-        elif bankDW == 'Withdraw' or 'withdraw':
-            takeNP = input('How much would you like to withdraw? -->')
-            withdrawNP = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[2]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/input[1]')
-            withdrawNP.send_keys(takeNP)
-            submit = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[2]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/input[2]')
-            submit.click()
-            driver.switch_to.alert.accept()
+        elif bankDW == 'withdraw':
+            balance = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/div[2]/table/tbody/tr[2]/td/table/tbody/tr[2]/td[2]').text
+            balance = balance.replace(',', '').replace(' NP', '')
+            good_withdraw = False
+            while not good_withdraw:
+                takeNP = input('How much would you like to withdraw? -->')
+                if int(takeNP) > int(balance):
+                    print('You do not have that much money in your account')
+                else:
+                    withdrawNP = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[2]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/input[1]')
+                    withdrawNP.send_keys(takeNP)
+                    submit = driver.find_element_by_xpath('//*[@id="content"]/table/tbody/tr/td[2]/table[1]/tbody/tr/td[2]/div/table/tbody/tr[2]/td/table/tbody/tr[2]/td/div/input[2]')
+                    submit.click()
+                    driver.switch_to.alert.accept()
+                    good_withdraw = True
             doneBanking = True
 
 
@@ -334,7 +341,7 @@ def np_check():
     print('Current NP:', user.np )
 
 
-def stats():  # displays basic status of NP, Inventory and Active pet hunger
+def status():  # displays basic status of NP, Inventory and Active pet hunger
     driver.get('http://www.neopets.com/inventory.phtml')
     # Finds inventory size
     inv_page = str(BeautifulSoup(driver.page_source,"html.parser"))
@@ -423,7 +430,7 @@ while not donePlaying:
     elif freebie == 'feed':
         feedPet()
     elif freebie == 'status':
-        stats()
+        status()
     elif freebie == 'exit':
         donePlaying = True
 
