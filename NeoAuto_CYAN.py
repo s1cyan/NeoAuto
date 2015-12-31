@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 import re
 import math
+import getpass
 
 __author__ = 'cyan'
 
@@ -365,7 +366,8 @@ def status():  # displays basic status of NP, Inventory and Active pet hunger
 
 print('Welcome to NeoAuto.')
 username_input = input('Username:')
-password_input = input('Password:')
+password_input = getpass.getpass(prompt='Password:')
+# password_input = input('Password:')
 
 user = Player(username_input)
 
