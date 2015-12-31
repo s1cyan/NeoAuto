@@ -240,7 +240,6 @@ def allTheFreebies(): # gets the most common freebies
 def visitBank():  # visits bank, lets user deposit/withdraw
     print('Please Wait')
     driver.get('http://www.neopets.com/bank.phtml')
-    # currentNP = driver.find_element_by_css_selector('#npanchor')
     doneBanking = False
     while not doneBanking:
         np_check()
@@ -291,6 +290,7 @@ def inv_navigator(inventory_number):  # returns correct xpath for cell in invent
 def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
     done_feeding = False
     yuck_regex = r'Yuck'
+    poison_regex = r'Poisonous|Smelly'
     while not done_feeding:
         print('Which pet do you want to feed?')
         for pet in user.neopets:
@@ -310,22 +310,31 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
                     WebDriverWait(driver, 3)
                     select = Select(driver.find_element_by_name("action"))
                     WebDriverWait(driver, 3)
-                    try:  # looks for feed pet option- if not moves on to next cell
-                        select.select_by_visible_text("Feed to {pet_name}.".format(pet_name=user.neopets[pick_pet]))
+                    new_window = str(BeautifulSoup(driver.page_source, "html.parser"))
+                    if re.search(poison_regex, new_window) is not None:  # if poisonous item is found, clear it from inv
+                        select.select_by_visible_text("Donate Item")
                         driver.find_element_by_id("submit").click()
+                        driver.switch_to.alert.accept()
+                        driver.switch_to.window(driver.window_handles[0])
+                        driver.refresh()
                         WebDriverWait(driver,2)
-                        fed_page = str(BeautifulSoup(driver.page_source,"html.parser"))
-                        if re.search(yuck_regex, fed_page) is not None:  # if neopet rejects move onto the next cell
+                    else:
+                        try:  # looks for feed pet option- if not moves on to next cell
+                            select.select_by_visible_text("Feed to {pet_name}.".format(pet_name=user.neopets[pick_pet]))
+                            driver.find_element_by_id("submit").click()
+                            WebDriverWait(driver,2)
+                            fed_page = str(BeautifulSoup(driver.page_source,"html.parser"))
+                            if re.search(yuck_regex, fed_page) is not None:  # if neopet rejects move onto the next cell
+                                i += 1
+                            else:
+                                i = 100
+                            driver.find_element_by_tag_name('input').click()
+                            driver.switch_to.window(driver.window_handles[0])
+                        except NoSuchElementException:
+                            driver.close()
+                            driver.switch_to.window(driver.window_handles[0])
+                            WebDriverWait(driver,2)
                             i += 1
-                        else:
-                            i = 100
-                        driver.find_element_by_tag_name('input').click()
-                        driver.switch_to.window(driver.window_handles[0])
-                    except NoSuchElementException:
-                        driver.close()
-                        driver.switch_to.window(driver.window_handles[0])
-                        WebDriverWait(driver,2)
-                        i += 1
                 except NoSuchElementException:
                     print('There is no food in your inventory. Stock up!')
                     i = 100
