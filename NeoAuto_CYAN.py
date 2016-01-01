@@ -290,7 +290,7 @@ def inv_navigator(inventory_number):  # returns correct xpath for cell in invent
 def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
     done_feeding = False
     yuck_regex = r'Yuck'
-    poison_regex = r'Poisonous|Smelly'
+    poison_regex = r'Poisonous|Smelly|Rotten|Lint'
     while not done_feeding:
         print('Which pet do you want to feed?')
         for pet in user.neopets:
@@ -311,7 +311,7 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
                     select = Select(driver.find_element_by_name("action"))
                     WebDriverWait(driver, 3)
                     new_window = str(BeautifulSoup(driver.page_source, "html.parser"))
-                    if re.search(poison_regex, new_window) is not None:  # if poisonous item is found, clear it from inv
+                    if re.search(poison_regex, new_window) is not None:  # if inedible, clear it from inv
                         select.select_by_visible_text("Donate Item")
                         driver.find_element_by_id("submit").click()
                         driver.switch_to.alert.accept()
