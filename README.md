@@ -39,14 +39,18 @@ To start the program, in terminal type: `python NeoAuto_CYAN.py`
 
 **Feeding Pets**
 When prompted and typing `feed` 
-A list of your pets will appear. Select pet by number and after another prompt enter times you want to feed it. 
+A list of your pets will appear. Select pet by number and after another prompt enter times you want to feed it. Food items will be used in the order of your inventory no matter the rarity of the item. Most commonly inedible items such as poisonous jelly/ smelly jelly will be automatically donated.  
 
 Ex:
-
+```
+NeoAuto ---->feed
+Which pet do you want to feed?
 [ 0 ]   kiko_dance
-
 [ 1 ]   noodles_t97
-
+Select pet# ---->0
+How many times do you want to feed? 
+ ---->2
+```
 **Going to the bank**
 Allows you to deposit/withdraw money from terminal
 
