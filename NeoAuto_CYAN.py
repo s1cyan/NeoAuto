@@ -207,33 +207,48 @@ def lunartemple():  # goes to lunar temple and picks correct answer to puzzle
 
 def allTheFreebies(): # gets the most common freebies
     jelly()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     omelette()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver,10).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[2]/center[2]/form/input[2]')))
+    # WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     springs()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     apples()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     bank_interest()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     shrine()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     fruit_machine()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "fruitResult")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "fruitResult")))
+    driver.refresh()
     meteor()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     slorg()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     symol()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     toychest()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     fishing()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     plushie()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "content")))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "content")))
+    driver.refresh()
     tombola()
-    WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[2]/td')))
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="content"]/table/tbody/tr/td[1]/div[1]/table/tbody/tr[2]/td')))
+    driver.refresh()
     lunartemple()
 
 
@@ -295,11 +310,23 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
         print('Which pet do you want to feed?')
         for pet in user.neopets:
             print('[', user.neopets.index(pet), ']', ' ', pet)
-        pick_pet = int(input('Select pet# ---->'))
-        feed_input = input('How many times do you want to feed? \n ---->')
-        feed_int = int(feed_input)
+        good_pet_input = False
+        good_feed_input = False
+        while not good_pet_input:
+            pick_pet = int(input('Select pet# ---->'))
+            if 0 <= pick_pet < len(user.neopets):
+                good_pet_input = True
+            else:
+                print('That is not an option.')
+        feed_input = 0
+        while not good_feed_input:
+            feed_input = int(input('How many times do you want to feed? \n ---->'))
+            if 0 <= feed_input <= 11:
+                good_feed_input = True
+            else:
+                print('You should not feed your pet so many times')
         driver.get('http://www.neopets.com/inventory.phtml')
-        for x in range(0, feed_int):
+        for x in range(0, feed_input):
             i = 1
             while i < 55:  # checks if first item in inventory is edible, keeps moving to next cell until food is found
                 try:  # navigates drop down menu
@@ -373,6 +400,14 @@ def status():  # displays basic status of NP, Inventory and Active pet hunger
     print('Active Pet Hunger: ', active_pet_hunger.text)
 
 
+def trudy_surprise():
+    try:
+        driver.find_element_by_id('tempcontent')
+        driver.switch_to.alert.accept()
+    except NoSuchElementException:
+        return
+
+
 print('Welcome to NeoAuto.')
 username_input = input('Username:')
 password_input = getpass.getpass(prompt='Password:')
@@ -382,6 +417,7 @@ user = Player(username_input)
 
 driver = webdriver.Firefox()
 driver.get("http://www.neopets.com/")
+
 
 login = driver.find_element_by_link_text("Log in")
 login.click()
@@ -396,10 +432,12 @@ password.send_keys(Keys.RETURN)
 
 driver.find_element_by_css_selector('#npanchor')
 
+trudy_surprise()
+
 user.getPets()
 
 donePlaying = False
-prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'fruit', 'meteor', 'slorg', 'symbol',
+prompts = ['jelly', 'omelette', 'springs', 'apple', 'interest', 'shrine',  'fruit', 'meteor', 'slorg', 'symol',
            'toychest', 'fishing', 'plushie', 'tombola', 'temple', 'do all', 'bank', 'feed pets',
            'status', 'exit']
 while not donePlaying:
@@ -422,7 +460,7 @@ while not donePlaying:
         meteor()
     elif freebie == 'slorg':
         slorg()
-    elif freebie == 'symbol':
+    elif freebie == 'symol':
         symol()
     elif freebie == 'toychest':
         toychest()
