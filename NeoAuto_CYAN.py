@@ -304,6 +304,7 @@ def inv_navigator(inventory_number):  # returns correct xpath for cell in invent
 
 def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
     done_feeding = False
+    current_feed = 1
     yuck_regex = r'Yuck'
     poison_regex = r'Poisonous|Smelly|Rotten|Lint'
     while not done_feeding:
@@ -327,7 +328,7 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
                 print('You should not feed your pet so many times')
         driver.get('http://www.neopets.com/inventory.phtml')
         for x in range(0, feed_input):
-            i = 1
+            i = current_feed
             while i < 55:  # checks if first item in inventory is edible, keeps moving to next cell until food is found
                 try:  # navigates drop down menu
                     cell = driver.find_element_by_xpath(inv_navigator(i))
@@ -365,10 +366,13 @@ def feedPet():  # feeds indicated pet # if pet doesnt like food - skip over item
                 except NoSuchElementException:
                     print('There is no food in your inventory. Stock up!')
                     i = 100
+                    current_feed = 1
                     done_feeding = True
+
         finish_prompt = input('Type \'n\' to leave feeding. Anything else to continue feeding ---->' )
         if finish_prompt == 'n':
             done_feeding = True
+            current_feed = 1
 
 
 def np_check():
@@ -418,6 +422,7 @@ user = Player(username_input)
 driver = webdriver.Firefox()
 driver.get("http://www.neopets.com/")
 
+driver.implicitly_wait(6)
 
 login = driver.find_element_by_link_text("Log in")
 login.click()
