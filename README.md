@@ -1,3 +1,5 @@
+*As of 5/31/2016 NeoAuto is no longer functional due to Neopets adding a boatload of new advertisements to their site.
+
 # NeoAuto
 
 A Python automation program for Neopets. Does the most common neopets Dailies that do not require any maps. Also feed indicated pet x number of times. 
